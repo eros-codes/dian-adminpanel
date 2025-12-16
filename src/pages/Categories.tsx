@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, CheckCircle2, CircleDashed, X } from 'lucide-react';
-import { apiService } from '@/services/api';
+import { apiService, extractErrorStatus } from '@/services/api';
 import { Category, CategoryOptionInput, CreateCategoryDto, UpdateCategoryDto } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

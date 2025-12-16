@@ -20,22 +20,10 @@ import {
 export type ApiResponse<T = unknown> = { success?: boolean; data?: T; [key: string]: unknown };
 
 // Helper to safely extract HTTP status from axios error shapes
-function extractErrorStatus(err: unknown): number | undefined {
+export function extractErrorStatus(err: unknown): number | undefined {
   try {
     const st = (err as any)?.response?.status;
     return typeof st === 'number' ? st : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function extractErrorMessage(err: unknown): string | undefined {
-  try {
-    const data = (err as any)?.response?.data;
-    if (!data) return (err as any)?.message ?? undefined;
-    if (typeof data === 'string') return data;
-    if (typeof data === 'object') return (data as any).message ?? (data as any).error ?? undefined;
-    return undefined;
   } catch {
     return undefined;
   }
