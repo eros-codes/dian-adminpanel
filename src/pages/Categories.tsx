@@ -244,8 +244,12 @@ const Categories: React.FC = () => {
       }
       return created;
     },
-    onSuccess: () => {
+    onSuccess: (created) => {
       toast.success(t('categories.saveSuccess'));
+      queryClient.setQueryData<Category[] | undefined>(['categories'], (old) => {
+        if (!old) return [created];
+        return [created, ...old];
+      });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setIsDialogOpen(false);
       resetFormState();
@@ -282,18 +286,40 @@ const Categories: React.FC = () => {
       }
       return updated;
     },
+    onMutate: async (values: CategoryForm) => {
+      await queryClient.cancelQueries({ queryKey: ['categories'] });
+      const previous = queryClient.getQueryData<Category[]>(['categories']);
+      queryClient.setQueryData<Category[] | undefined>(['categories'], (old) => {
+        if (!old) return old;
+        return old.map((c) => {
+          if (!editingCategory) return c;
+          if (c.id !== editingCategory.id) return c;
+          return {
+            ...c,
+            name: values.name ?? c.name,
+            isActive: values.isActive ?? c.isActive,
+            discountPercent: values.discountPercent ?? c.discountPercent,
+            iconPath: values.clearIcon ? undefined : c.iconPath,
+            type: values.type ?? c.type,
+          } as Category;
+        });
+      });
+      return { previous };
+    },
+    onError: (_error: unknown, _vars, context: any) => {
+      if (context?.previous) queryClient.setQueryData(['categories'], context.previous);
+      const status = extractErrorStatus(_error);
+      const message = status === 409 ? t('categories.duplicateName') : t('categories.updateError');
+      toast.error(message as string);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
     onSuccess: () => {
       toast.success(t('categories.saveSuccess'));
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
       setIsDialogOpen(false);
       setEditingCategory(null);
       resetFormState();
-    },
-    onError: (error: unknown) => {
-      if (error instanceof Error && error.message === 'VALIDATION_ERROR') return;
-      const status = extractErrorStatus(error);
-      const message = status === 409 ? t('categories.duplicateName') : t('categories.updateError');
-      toast.error(message as string);
     },
   });
 
@@ -301,12 +327,24 @@ const Categories: React.FC = () => {
     mutationFn: async (id: string) => {
       return await apiService.deleteCategory(id);
     },
-    onSuccess: () => {
-      toast.success(t('categories.deleteSuccess'));
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['categories'] });
+      const previous = queryClient.getQueryData<Category[]>(['categories']);
+      queryClient.setQueryData<Category[] | undefined>(['categories'], (old) => {
+        if (!old) return old;
+        return old.filter((c) => c.id !== id);
+      });
+      return { previous };
+    },
+    onError: (_error: unknown, _vars, context: any) => {
+      if (context?.previous) queryClient.setQueryData(['categories'], context.previous);
+      toast.error(t('categories.deleteError'));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
-    onError: () => {
-      toast.error(t('categories.deleteError'));
+    onSuccess: () => {
+      toast.success(t('categories.deleteSuccess'));
     },
   });
 
@@ -389,7 +427,7 @@ const Categories: React.FC = () => {
                 {t('categories.addCategory')}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[80vh] overflow-hidden p-0 sm:max-w-3xl">
+            <DialogContent aria-describedby="category-dialog-description" className="max-h-[80vh] overflow-hidden p-0 sm:max-w-3xl">
               <Form {...form}>
                 <form
                   className="grid max-h-[80vh] grid-rows-[auto,1fr,auto]"
@@ -400,6 +438,9 @@ const Categories: React.FC = () => {
                       {editingCategory ? t('categories.editCategory') : t('categories.addCategory')}
                     </DialogTitle>
                   </DialogHeader>
+                  <p id="category-dialog-description" className="sr-only">
+                    {editingCategory ? t('categories.editCategory') : t('categories.addCategory')}
+                  </p>
                   <div className="overflow-y-auto px-6 pb-6">
                     <div className="space-y-4 pr-2">
                       <FormField
