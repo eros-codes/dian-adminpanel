@@ -158,7 +158,7 @@ export interface Category {
   id: string;
   name: string;
   isActive: boolean;
-  type: 'CAFE' | 'RESTAURANT';
+  type: 'CAFE' | 'RESTAURANT' | 'BREAKFAST';
   iconId?: string | null;
   iconPath?: string | null;
   discountPercent?: number;
@@ -170,7 +170,7 @@ export interface Category {
 export interface CreateCategoryDto {
   name: string;
   iconUrl?: string;
-  type?: 'CAFE' | 'RESTAURANT';
+  type?: 'CAFE' | 'RESTAURANT' | 'BREAKFAST';
   options?: CategoryOptionInput[];
 }
 
@@ -180,6 +180,6 @@ export interface UpdateCategoryDto {
   discountPercent?: number;
   iconUrl?: string;
   clearIcon?: boolean;
-  type?: 'CAFE' | 'RESTAURANT';
+  type?: 'CAFE' | 'RESTAURANT' | 'BREAKFAST';
   options?: CategoryOptionInput[];
 }

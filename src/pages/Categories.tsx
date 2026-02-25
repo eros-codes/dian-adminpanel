@@ -57,7 +57,7 @@ type CategoryForm = {
   discountPercent?: number;
   iconUrl?: string;
   clearIcon?: boolean;
-  type: 'CAFE' | 'RESTAURANT';
+  type: 'CAFE' | 'RESTAURANT' | 'BREAKFAST';
   options: CategoryOptionForm[];
 };
 
@@ -446,7 +446,7 @@ const Categories: React.FC = () => {
                                 <RadioGroup
                                   className="flex flex-col gap-2 sm:flex-row sm:items-center"
                                   value={field.value ?? 'CAFE'}
-                                  onValueChange={(value) => field.onChange(value as 'CAFE' | 'RESTAURANT')}
+                                  onValueChange={(value) => field.onChange(value as 'CAFE' | 'RESTAURANT' | 'BREAKFAST')}
                                 >
                                   <FormItem className="flex items-center gap-2 space-y-0">
                                     <FormControl>
@@ -459,6 +459,12 @@ const Categories: React.FC = () => {
                                       <RadioGroupItem value="RESTAURANT" />
                                     </FormControl>
                                     <span className="text-sm">{t('categories.typeRestaurant')}</span>
+                                  </FormItem>
+                                  <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                      <RadioGroupItem value="BREAKFAST" />
+                                    </FormControl>
+                                    <span className="text-sm">{t('categories.typeBreakfast')}</span>
                                   </FormItem>
                                 </RadioGroup>
                               </FormControl>
@@ -788,7 +794,7 @@ const Categories: React.FC = () => {
                           {typeof c.discountPercent === 'number' ? String(c.discountPercent) : '0'}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          {c.type === 'RESTAURANT' ? t('categories.typeRestaurant') : t('categories.typeCafe')}
+                          {c.type === 'RESTAURANT' ? t('categories.typeRestaurant') : c.type === 'BREAKFAST' ? t('categories.typeBreakfast') : t('categories.typeCafe')}
                         </TableCell>
                         <TableCell>
                           <span className={c.isActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>

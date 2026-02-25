@@ -204,6 +204,7 @@
     "typeLabel": "Category type",
     "typeCafe": "Cafe",
     "typeRestaurant": "Restaurant",
+    "typeBreakfast": "Breakfast",
     "discountLabel": "Category discount (%)",
     "iconSectionTitle": "Category icon",
     "iconSectionExisting": "Using saved icon",
